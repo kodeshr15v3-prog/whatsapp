@@ -32,7 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(bearer),
     db: Session = Depends(get_db),
@@ -61,10 +60,14 @@ def sign_up(user: signup, db: Session = Depends(get_db)):
 
 @app.post("/login", response_model=token)
 def login_user(user: login, db: Session = Depends(get_db)):
+
     db_user = db.query(User).filter(User.email == user.email).first()
+
     if not db_user or not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
     access_token = create_access_token({"sub": db_user.email})
+
     return {"access_token": access_token, "token_type": "bearer"}
 
 
@@ -86,9 +89,11 @@ async def chat_ws(
     try:
         payload = verify_access_token(token)
         user = db.query(User).filter(User.email == payload["sub"]).first()
+        
         if not user:
             await websocket.close(code=4001)
             return
+        
     except Exception:
         await websocket.close(code=4001)
         return

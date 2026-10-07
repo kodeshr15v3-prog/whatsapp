@@ -29,21 +29,18 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
 
     routes: [
-      GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
-      GoRoute(path: '/register', builder: (_, __) => const RegisterScreen()),
-      GoRoute(path: '/chats', builder: (_, __) => const ChatListScreen()),
+      GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
+      GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
+      GoRoute(path: '/chats', builder: (_, _) => const ChatListScreen()),
+      GoRoute(path: '/users', builder: (_, _) => const UsersListScreen()),
+      GoRoute(path: '/profile', builder: (_, _) => const ProfileScreen()),
       GoRoute(
         path: '/chat/:chatId/:name',
         builder: (_, state) => ChatScreen(
           chatId: state.pathParameters['chatId']!,
           name: state.pathParameters['name']!,
-        )
+        ),
       ),
-      GoRoute(path: '/users', builder: (_, __) => const UsersListScreen()),
-      GoRoute(
-  path: '/profile',
-  builder: (_, __) => const ProfileScreen(),
-),
     ],
   );
 });

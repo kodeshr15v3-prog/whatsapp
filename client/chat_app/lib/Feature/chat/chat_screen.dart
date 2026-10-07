@@ -8,7 +8,6 @@ import 'package:go_router/go_router.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:chat_app/Core/constant.dart';
 import '../../core/storage.dart';
-import 'package:web_socket_channel/html.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String chatId;
@@ -40,17 +39,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     _init();
   }
 
-  Future<void> _init() async {
-    _myUserId = await AppStorage.getUserId();
-    await _loadHistory();
-    await _fetchStatus();
-    _connectWebSocket(); // connect first
-    await Future.delayed(
-      // small delay so channel is ready
-      const Duration(milliseconds: 300),
-    );
-    await _markAsRead();
-  }
+Future<void> _init() async {
+  _myUserId = await AppStorage.getUserId();
+  await _loadHistory();
+  await _fetchStatus();
+  await _connectWebSocket();
+  await _markAsRead();
+}
 
   Widget _buildTick(String status) {
     if (status == 'read') {
@@ -135,9 +130,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final token = await AppStorage.getToken();
     final uri = Uri.parse('${AppConstants.wsUrl}/ws/chat?token=$token');
 
-    // use HtmlWebSocketChannel for Flutter Web
-    _channel = HtmlWebSocketChannel.connect(uri);
-
+    try {
+      final channel = WebSocketChannel.connect(uri);
+      await channel.ready; // throws if the connection fails
+      _channel = channel;
+    } catch (e) {
+      print('[WS] connect failed: $e');
+      return;
+    }
     _channel!.stream.listen(
       (raw) {
         final msg = Map<String, dynamic>.from(jsonDecode(raw));

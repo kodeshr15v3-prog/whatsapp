@@ -34,14 +34,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     try {
-      final success = await ref
-          .read(authProvider.notifier)
-          .register(
+      final success = await ref.read(authProvider.notifier).register(
             nameController.text.trim(),
             emailController.text.trim(),
             passwordController.text.trim(),
           );
-      if (success && mounted) context.go('/charts');
+      if (success && mounted) context.go('/chats');
     } catch (e) {
       setState(() {
         _errorMessage = 'Registration failed. Email may already exist.';
